@@ -445,6 +445,7 @@ body.is-drawer-open { overflow: hidden; }
 .contact__side-title { font-size: 20px; margin-bottom: 16px; }
 .contact__side-note { margin-top: 18px; padding: 14px 16px; border-left: 3px solid var(--c-spark); background: var(--c-soft); font-size: 13.5px; line-height: 1.8; }
 .contact__box { padding: clamp(22px, 4vw, 48px); border: 2px solid var(--c-ink); border-radius: 10px; background: #fff; }
+.contact__box--rk { padding: clamp(12px, 2.4vw, 28px); }
 @media (max-width: 900px) {
 	.contact__inner { grid-template-columns: 1fr; }
 	.contact__side { position: static; order: 2; }

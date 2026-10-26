@@ -128,4 +128,19 @@
 	['keydown', 'pointerdown', 'focusin', 'change'].forEach(function (type) {
 		doc.addEventListener(type, markHuman, true);
 	});
+
+	/* ---------- 予約フォーム（ReserveKit）：人が操作したときだけ、表示時刻の署名を Cookie に入れる（ボット対策） ---------- */
+	var rkWrap = doc.querySelector('.rk-wrap[data-rk-token]');
+	if (rkWrap) {
+		var rkDone = false;
+		var rkMark = function (e) {
+			if (rkDone || !rkWrap.contains(e.target)) return;
+			rkDone = true;
+			var secure = location.protocol === 'https:' ? '; Secure' : '';
+			doc.cookie = 'enosho_rk=' + rkWrap.getAttribute('data-rk-token') + '.h; path=/; max-age=86400; SameSite=Lax' + secure;
+		};
+		['pointerdown', 'keydown', 'focusin'].forEach(function (type) {
+			doc.addEventListener(type, rkMark, true);
+		});
+	}
 })();
