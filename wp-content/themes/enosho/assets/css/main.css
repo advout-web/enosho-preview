@@ -1,6 +1,6 @@
 /* =========================================================
    ENOSHO Theme - main.css
-   Concept : どこを、きれいにしましょう。（間取り図からお部屋を選ぶ）
+   Concept : どの部屋のエアコンを、きれいにしましょう。（間取り図でエアコンの部屋を選ぶと、台数と料金の目安）
    方眼紙の地に線画の間取り図。ロゴの空色・橙と紺。影は使わず、線で組む。
    ========================================================= */
 
@@ -119,6 +119,8 @@ h1, h2, h3, h4 { font-family: var(--f-head); color: var(--c-ink); font-weight: 9
 .drawer__nav { padding: 24px var(--gutter) 120px; }
 .drawer__list li { border-bottom: 1px solid var(--c-line); }
 .drawer__list a { display: block; padding: 14px 4px; font-weight: 900; font-size: 18px; color: var(--c-ink); }
+.drawer__price { display: flex; align-items: center; gap: 12px; margin-top: 24px; padding: 14px 16px; border: 2px solid var(--c-ink); border-radius: 8px; background: #fff; font-size: 14px; line-height: 1.6; color: var(--c-ink); }
+.drawer__price .icon { width: 44px; height: 44px; color: var(--c-blue); }
 .drawer__head { margin: 28px 0 10px; font-weight: 700; font-size: 14px; color: var(--c-muted); }
 .drawer__rooms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .drawer__rooms a { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 1.5px solid var(--c-ink); border-radius: 8px; background: #fff; font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3; }
@@ -145,15 +147,19 @@ body.is-drawer-open { overflow: hidden; }
 .fv { position: relative; background-color: var(--c-paper); background-image: var(--grid-bg); background-size: 24px 24px; border-bottom: 1px solid var(--c-line); }
 .fv__inner { max-width: 1440px; margin-inline: auto; padding: clamp(32px, 5vw, 64px) var(--gutter) clamp(40px, 5vw, 72px); min-height: min(calc(100svh - var(--header-h)), 860px); display: grid; grid-template-columns: minmax(320px, .78fr) 1.22fr; gap: clamp(28px, 4vw, 64px); align-items: center; }
 .fv__area { display: inline-block; margin-bottom: 18px; padding: 4px 12px; border: 1.5px solid var(--c-ink); border-radius: 4px; background: #fff; font-weight: 700; font-size: 14px; color: var(--c-ink); }
-.fv__title { font-size: clamp(42px, 5.4vw, 80px); line-height: 1.24; letter-spacing: .04em; }
+.fv__title { font-size: clamp(38px, 4.3vw, 64px); line-height: 1.28; letter-spacing: .04em; }
 .fv__lead { margin-top: 22px; font-size: clamp(15px, 1.25vw, 17px); line-height: 1.95; color: var(--c-text); }
-.fv__picked { margin-top: 26px; min-height: 92px; padding: 14px 18px; border: 2px dashed var(--c-line); border-radius: 8px; background: rgba(255, 255, 255, .85); }
-.fv__picked-hint { display: flex; align-items: center; height: 60px; font-size: 14px; font-weight: 700; color: var(--c-muted); }
-.fv__picked-hint::before { content: ""; width: 14px; height: 14px; margin-right: 10px; background: var(--c-spark); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
-.fv__picked.is-active { border-style: solid; border-color: var(--c-blue); }
-.fv__picked-name { font-weight: 900; font-size: 17px; color: var(--c-ink); }
-.fv__picked-price { font-family: var(--f-num); font-weight: 700; font-size: 26px; line-height: 1.3; color: var(--c-orange-ink); }
-.fv__picked-time { font-size: 13px; color: var(--c-muted); }
+.fv__calc { margin-top: 26px; padding: 16px 18px; border: 2px dashed var(--c-line); border-radius: 8px; background: rgba(255, 255, 255, .9); }
+.fv__calc.is-active { border-style: solid; border-color: var(--c-ink); }
+.fv__calc-hint { display: flex; align-items: center; font-size: 15px; font-weight: 700; color: var(--c-ink); }
+.fv__calc-hint::before { content: ""; flex: none; width: 14px; height: 14px; margin-right: 10px; background: var(--c-spark); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.fv__calc-units { font-weight: 900; font-size: 15px; color: var(--c-blue-ink); }
+.fv__calc-units span { font-family: var(--f-num); font-size: 20px; }
+.fv__calc-total { font-weight: 900; color: var(--c-ink); }
+.fv__calc-total span { font-family: var(--f-num); font-weight: 700; font-size: 32px; color: var(--c-orange-ink); }
+.fv__calc-total small { display: block; font-size: 12px; font-weight: 700; color: var(--c-muted); }
+.fv__calc-detail { font-size: 13px; color: var(--c-text); }
+.fv__calc-note { margin-top: 6px; font-size: 12.5px; color: var(--c-muted); }
 .fv__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 .fv__note { margin-top: 14px; font-size: 13px; color: var(--c-muted); }
 .fv__plan { position: relative; }
@@ -164,38 +170,47 @@ body.is-drawer-open { overflow: hidden; }
 .plan__outer { fill: none; stroke: var(--c-ink); stroke-width: 7; }
 .plan__hall { fill: #F1F8FC; stroke: var(--c-ink); stroke-width: 3; }
 .plan__hall-label { font-size: 15px; font-weight: 700; fill: var(--c-muted); }
-.plan__hall-note { font-size: 13px; font-weight: 700; fill: var(--c-blue-ink); }
 .plan__door { fill: none; stroke: var(--c-line); stroke-width: 2; stroke-dasharray: 4 4; }
-.plan-room { cursor: pointer; outline: none; }
+.plan-room { outline: none; }
 .plan-room__floor { fill: #fff; stroke: var(--c-ink); stroke-width: 3; transition: fill .25s; }
 .plan-room__name { font-size: 20px; font-weight: 900; fill: var(--c-ink); }
-.plan-room__svc { font-size: 15px; font-weight: 700; fill: var(--c-blue-ink); }
-.plan-room__price { font-family: var(--f-num); font-size: 19px; font-weight: 700; fill: var(--c-orange-ink); }
-.plan-room__unit { font-family: var(--f-head); font-size: 13px; font-weight: 700; }
-.plan-room__icon { color: var(--c-line); transition: color .25s; }
-.plan-room:hover .plan-room__floor, .plan-room.is-active .plan-room__floor { fill: #E3F3FC; }
-.plan-room:hover .plan-room__icon, .plan-room.is-active .plan-room__icon { color: var(--c-blue); }
-.plan-room:focus-visible .plan-room__floor { fill: #E3F3FC; stroke: var(--c-blue); stroke-width: 5; }
+.plan-room__ac { fill: #fff; stroke: var(--c-line); stroke-width: 2.4; stroke-linecap: round; transition: stroke .25s, fill .25s; }
+.plan-room__ac path { fill: none; }
+.plan-room__air { opacity: 0; transition: opacity .3s; }
+.plan-room__state { font-size: 13px; font-weight: 700; display: none; }
+.plan-room__state--off { fill: var(--c-blue-ink); }
+.plan-room__state--on { fill: var(--c-orange-ink); }
+.is-interactive .plan-room { cursor: pointer; }
+.is-interactive .plan-room__state--off { display: inline; }
+.is-interactive .plan-room[aria-pressed="true"] .plan-room__state--off { display: none; }
+.is-interactive .plan-room[aria-pressed="true"] .plan-room__state--on { display: inline; }
+.is-interactive .plan-room:hover .plan-room__floor { fill: #F1F8FC; }
+.plan-room[aria-pressed="true"] .plan-room__floor { fill: #E3F3FC; }
+.plan-room[aria-pressed="true"] .plan-room__ac { stroke: var(--c-blue); fill: #F4FBFF; }
+.plan-room[aria-pressed="true"] .plan-room__air { opacity: 1; }
+.plan-room:focus-visible .plan-room__floor { stroke: var(--c-blue); stroke-width: 5; }
 .plan--sp .plan-room__name { font-size: 19px; }
-.plan-room--compact .plan-room__name { font-size: 15px; }
-.plan--sp .plan-room--compact .plan-room__name { font-size: 16px; }
-.plan--sp .plan-room__price { font-size: 18px; }
 
-/* きらめき（読み込み時に部屋ごとに順に灯る。唯一の自動の動き） */
-.sparkle { fill: var(--c-spark); transform-box: fill-box; transform-origin: center; opacity: 0; animation: sparkle-in .9s var(--ease-pop) var(--d, 0s) forwards; }
+/* きらめき：部屋を選ぶと灯る（操作に応える動きだけにする） */
+.sparkle { fill: var(--c-spark); transform-box: fill-box; transform-origin: center; opacity: 0; }
+.plan-room[aria-pressed="true"] .sparkle, .page-hero .sparkle { animation: sparkle-in .7s var(--ease-pop) forwards; }
+.page-hero .sparkle { animation-delay: var(--d, 0s); }
 @keyframes sparkle-in {
 	0% { opacity: 0; transform: scale(.1) rotate(-60deg); }
 	60% { opacity: 1; transform: scale(1.3) rotate(8deg); }
 	100% { opacity: 1; transform: scale(1) rotate(0); }
 }
-.plan-room:hover .sparkle { animation: sparkle-in .9s var(--ease-pop) var(--d, 0s) forwards, sparkle-twinkle 1s ease-in-out .2s infinite; }
-@keyframes sparkle-twinkle { 50% { transform: scale(.7) rotate(20deg); } }
-.no-js .sparkle, .is-shot .sparkle { animation: none; opacity: 1; }
+.no-js .page-hero .sparkle, .is-shot .page-hero .sparkle { animation: none; opacity: 1; }
 
 @media (max-width: 960px) {
 	.fv__inner { grid-template-columns: 1fr; min-height: 0; }
+	.fv__copy { display: contents; }
+	.fv__area, .fv__title, .fv__lead { order: 1; }
+	.fv__area { justify-self: start; margin-bottom: -12px; }
 	.fv__plan { order: 2; }
-	.fv__picked { display: none; }
+	.fv__calc { order: 3; margin-top: -8px; }
+	.fv__cta { order: 4; margin-top: 0; }
+	.fv__note { order: 5; margin-top: -16px; }
 }
 @media (max-width: 640px) {
 	.plan--pc { display: none; }
@@ -242,8 +257,7 @@ body.is-drawer-open { overflow: hidden; }
 
 /* ---------- 料金表 ---------- */
 .price-list { border-top: 0; }
-.price-row { display: grid; grid-template-columns: 64px minmax(180px, 1.1fr) 1.6fr 140px 150px; align-items: center; gap: 20px; padding: 20px 12px; border-bottom: 1px solid var(--c-line); transition: background-color .2s; }
-.price-row:hover { background: var(--c-soft); }
+.price-row { display: grid; grid-template-columns: 64px minmax(200px, 1fr) 1.6fr 170px; align-items: center; gap: 20px; padding: 20px 12px; border-bottom: 1px solid var(--c-line); }
 .price-row__icon { width: 56px; height: 56px; color: var(--c-blue); }
 .price-row__name { display: flex; flex-direction: column; }
 .price-row__room { font-size: 12px; font-weight: 700; color: var(--c-muted); }
@@ -253,14 +267,36 @@ body.is-drawer-open { overflow: hidden; }
 .price-row__price { text-align: right; font-family: var(--f-num); font-weight: 700; font-size: 24px; color: var(--c-orange-ink); line-height: 1.2; white-space: nowrap; }
 .price-row__price small { margin-left: 2px; font-family: var(--f-head); font-size: 13px; }
 .price__more { margin-top: 32px; text-align: center; }
+.price__units { margin-top: 36px; }
+.price__opt-title { margin: 48px 0 18px; font-size: 22px; }
+.units-table { width: 100%; max-width: 640px; border-collapse: collapse; background: #fff; }
+.units-table caption { padding-bottom: 10px; text-align: left; font-weight: 900; color: var(--c-ink); }
+.units-table th, .units-table td { padding: 12px 16px; border: 1.5px solid var(--c-ink); text-align: left; }
+.units-table thead th { background: var(--c-ink); color: #fff; font-size: 14px; }
+.units-table tbody th { width: 5em; font-family: var(--f-num); }
+.units-table tbody td:nth-child(2) { font-family: var(--f-num); font-weight: 700; font-size: 18px; color: var(--c-orange-ink); white-space: nowrap; }
+.units-table__note { font-size: 13px; color: var(--c-muted); }
+.sv-units .units-table { max-width: none; }
+
+/* ---------- エアコンの中の汚れ ---------- */
+.inside__inner { display: grid; grid-template-columns: minmax(300px, 1fr) 2fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+.inside__title { font-size: clamp(26px, 2.6vw, 36px); line-height: 1.5; }
+.inside__lead { font-size: clamp(16px, 1.4vw, 18px); line-height: 2.1; font-weight: 700; color: var(--c-ink); }
+.inside__facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
+.inside__facts div { padding: 18px 20px; border-top: 3px solid var(--c-blue); background: #fff; }
+.inside__facts dt { font-weight: 900; color: var(--c-ink); margin-bottom: 6px; }
+.inside__facts dd { margin: 0; font-size: 14px; line-height: 1.85; }
 @media (max-width: 900px) {
-	.price-row { grid-template-columns: 48px 1fr auto; grid-template-areas: "icon name price" "icon works works" "icon time time"; gap: 4px 14px; padding: 16px 4px; }
+	.inside__inner { grid-template-columns: 1fr; }
+	.inside__facts { grid-template-columns: 1fr; }
+	.units-table th, .units-table td { padding: 10px 10px; }
+}
+@media (max-width: 900px) {
+	.price-row { grid-template-columns: 48px 1fr auto; grid-template-areas: "icon name price" "icon works works"; gap: 4px 14px; padding: 16px 4px; }
 	.price-row__icon { grid-area: icon; width: 44px; height: 44px; align-self: start; }
 	.price-row__name { grid-area: name; }
 	.price-row__price { grid-area: price; font-size: 20px; }
 	.price-row__works { grid-area: works; font-size: 13px; }
-	.price-row__time { grid-area: time; font-size: 12.5px; }
-	.price-row__time::before { content: "作業時間（目安）："; }
 }
 
 /* ---------- オプションの価格札 ---------- */

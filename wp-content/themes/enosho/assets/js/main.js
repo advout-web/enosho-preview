@@ -91,28 +91,46 @@
 		revealEls.forEach(function (el) { el.classList.add('is-in'); });
 	}
 
-	/* ---------- FV：間取り図のお部屋を選ぶと「選んだお部屋」欄に料金を表示 ---------- */
-	var picked = doc.querySelector('.fv__picked');
-	if (picked) {
-		var hint = picked.querySelector('.fv__picked-hint');
-		var detail = picked.querySelector('.fv__picked-body');
-		var nameEl = picked.querySelector('.fv__picked-name');
-		var priceEl = picked.querySelector('.fv__picked-price');
-		var timeEl = picked.querySelector('.fv__picked-time');
-		var rooms = doc.querySelectorAll('.plan--pc .plan-room');
-		var show = function (room) {
-			rooms.forEach(function (r) { r.classList.toggle('is-active', r === room); });
-			nameEl.textContent = room.getAttribute('data-name');
-			priceEl.textContent = room.getAttribute('data-price');
-			timeEl.textContent = '作業時間（目安）：' + room.getAttribute('data-time');
-			hint.hidden = true;
-			detail.hidden = false;
-			picked.classList.add('is-active');
+	/* ---------- FV：エアコンのある部屋を選ぶと、台数と合計の目安を表示（PC とスマホの図面は選択を共有） ---------- */
+	var planWrap = doc.querySelector('.fv__plan[data-price]');
+	var calc = doc.querySelector('.fv__calc');
+	if (planWrap && calc) {
+		var price = {};
+		try { price = JSON.parse(planWrap.getAttribute('data-price')); } catch (e) { price = {}; }
+		var unit = Number(price.standard) || 6600;
+		var from = Number(price.discount_from) || 3;
+		var off = Number(price.discount) || 1000;
+		var yen = function (n) { return '¥' + Number(n).toLocaleString('ja-JP'); };
+		var rooms = planWrap.querySelectorAll('.plan-room');
+		var chosen = {};
+		var render = function () {
+			var names = Object.keys(chosen).filter(function (k) { return chosen[k]; });
+			var n = names.length;
+			rooms.forEach(function (r) {
+				r.setAttribute('aria-pressed', chosen[r.getAttribute('data-room')] ? 'true' : 'false');
+			});
+			var full = Math.min(n, from - 1);
+			var cheap = Math.max(0, n - full);
+			var total = full * unit + cheap * (unit - off);
+			calc.querySelector('.fv__calc-body').hidden = n === 0;
+			calc.querySelector('.fv__calc-hint').hidden = n > 0;
+			calc.querySelector('.js-calc-units').textContent = n;
+			calc.querySelector('.js-calc-total').textContent = yen(total);
+			calc.querySelector('.js-calc-detail').textContent = n ? names.join('・') + '（' + yen(unit) + '×' + full + '台' + (cheap ? '＋' + yen(unit - off) + '×' + cheap + '台' : '') + '）' : '';
+			calc.classList.toggle('is-active', n > 0);
+		};
+		var toggle = function (room) {
+			var key = room.getAttribute('data-room');
+			chosen[key] = !chosen[key];
+			render();
 		};
 		rooms.forEach(function (room) {
-			room.addEventListener('mouseenter', function () { show(room); });
-			room.addEventListener('focus', function () { show(room); });
+			room.addEventListener('click', function () { toggle(room); });
+			room.addEventListener('keydown', function (e) {
+				if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(room); }
+			});
 		});
+		planWrap.classList.add('is-interactive');
 	}
 
 	/* ---------- ご予約フォーム：人が入力欄を操作したときだけ確認用の値を入れる（ボット対策） ---------- */
