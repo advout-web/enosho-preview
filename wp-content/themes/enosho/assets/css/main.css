@@ -366,6 +366,9 @@ body.is-drawer-open { overflow: hidden; }
 .area-pref__name span { padding: 2px 12px; border-radius: 4px; background: var(--c-orange); color: var(--c-ink); font-size: 15px; }
 .area-pref--all .area-pref__name { font-size: clamp(26px, 3vw, 34px); }
 .area-pref__cities { font-size: 14.5px; line-height: 1.9; color: var(--c-text); }
+.area-pref--consult { grid-column: 1 / -1; border-style: dashed; background: var(--c-soft); }
+.area-pref--consult .area-pref__name span { background: #fff; border: 1.5px solid var(--c-ink); }
+.area-pref__cities a { font-weight: 700; text-decoration: underline; }
 .area-pref__chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .area-pref__chips li { padding: 4px 12px; border: 1.5px solid var(--c-line); border-radius: 4px; background: var(--c-soft); font-size: 14px; font-weight: 700; }
 .area--page { border: 0; }

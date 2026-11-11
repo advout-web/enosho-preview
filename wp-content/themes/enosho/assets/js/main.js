@@ -222,7 +222,17 @@
 		});
 		dialog.addEventListener('change', function (e) {
 			if (e.target.matches('.room-dialog__opts input')) {
-				get(current).opts[e.target.value] = e.target.checked;
+				var r = get(current);
+				var id = e.target.value;
+				r.opts[id] = e.target.checked;
+				if (e.target.checked) {
+					// セットと、セットに含まれるオプションは同時に選べない（二重に数えないように）
+					var o = optById[id] || {};
+					(o.covers || []).forEach(function (c) { r.opts[c] = false; });
+					Object.keys(optById).forEach(function (k) {
+						if ((optById[k].covers || []).indexOf(id) !== -1) r.opts[k] = false;
+					});
+				}
 				update();
 			}
 		});
