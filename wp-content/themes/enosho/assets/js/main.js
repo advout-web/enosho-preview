@@ -91,43 +91,145 @@
 		revealEls.forEach(function (el) { el.classList.add('is-in'); });
 	}
 
-	/* ---------- FV：エアコンのある部屋を選ぶと、台数と合計の目安を表示（PC とスマホの図面は選択を共有） ---------- */
-	var planWrap = doc.querySelector('.fv__plan[data-price]');
+	/* ---------- FV：部屋ごとにエアコン（ノーマル／お掃除機能付きの台数・オプション）を選び、合計の目安を表示 ---------- */
+	var planWrap = doc.querySelector('.fv__plan[data-calc]');
 	var calc = doc.querySelector('.fv__calc');
-	if (planWrap && calc) {
-		var price = {};
-		try { price = JSON.parse(planWrap.getAttribute('data-price')); } catch (e) { price = {}; }
-		var unit = Number(price.standard) || 6600;
-		var from = Number(price.discount_from) || 3;
-		var off = Number(price.discount) || 1000;
-		var yen = function (n) { return '¥' + Number(n).toLocaleString('ja-JP'); };
+	var dialog = doc.getElementById('room-dialog');
+	if (planWrap && calc && dialog) {
+		var cfg = {};
+		try { cfg = JSON.parse(planWrap.getAttribute('data-calc')); } catch (e) { cfg = {}; }
+		var price = { normal: Number(cfg.standard) || 6600, robot: Number(cfg.robot) || 12100 };
+		var discFrom = Number(cfg.discountFrom) || 3;
+		var disc = Number(cfg.discount) || 1000;
+		var optById = {};
+		(cfg.options || []).forEach(function (o) { optById[o.id] = o; });
+		var MAX = 9;
+		var yen = function (n) { return (n < 0 ? '−¥' : '¥') + Math.abs(n).toLocaleString('ja-JP'); };
 		var rooms = planWrap.querySelectorAll('.plan-room');
-		var chosen = {};
-		var render = function () {
-			var names = Object.keys(chosen).filter(function (k) { return chosen[k]; });
-			var n = names.length;
-			rooms.forEach(function (r) {
-				r.setAttribute('aria-pressed', chosen[r.getAttribute('data-room')] ? 'true' : 'false');
+		var state = {}; // 部屋名 → { normal, robot, opts: { id: true } }
+		var current = null;
+		var get = function (name) {
+			if (!state[name]) state[name] = { normal: 0, robot: 0, opts: {} };
+			return state[name];
+		};
+		var units = function (r) { return r.normal + r.robot; };
+
+		var renderRooms = function () {
+			rooms.forEach(function (el) {
+				var r = state[el.getAttribute('data-room')];
+				var n = r ? units(r) : 0;
+				el.setAttribute('aria-pressed', n > 0 ? 'true' : 'false');
+				var parts = [];
+				if (r && r.normal) parts.push('ノーマル' + r.normal);
+				if (r && r.robot) parts.push('お掃除' + r.robot);
+				var oc = r ? Object.keys(r.opts).filter(function (k) { return r.opts[k]; }).length : 0;
+				if (oc) parts.push('OP' + oc);
+				el.querySelector('.js-room-summary').textContent = parts.join('・');
+				el.querySelector('.js-room-count').textContent = n ? n + '台' : '';
+				el.setAttribute('aria-label', el.getAttribute('data-room') + 'のエアコンを選ぶ' + (n ? '（' + parts.join('、') + '）' : ''));
 			});
-			var full = Math.min(n, from - 1);
-			var cheap = Math.max(0, n - full);
-			var total = full * unit + cheap * (unit - off);
-			calc.querySelector('.fv__calc-body').hidden = n === 0;
-			calc.querySelector('.fv__calc-hint').hidden = n > 0;
-			calc.querySelector('.js-calc-units').textContent = n;
-			calc.querySelector('.js-calc-total').textContent = yen(total);
-			calc.querySelector('.js-calc-detail').textContent = n ? names.join('・') + '（' + yen(unit) + '×' + full + '台' + (cheap ? '＋' + yen(unit - off) + '×' + cheap + '台' : '') + '）' : '';
-			calc.classList.toggle('is-active', n > 0);
 		};
-		var toggle = function (room) {
-			var key = room.getAttribute('data-room');
-			chosen[key] = !chosen[key];
-			render();
+
+		var renderCalc = function () {
+			var normal = 0, robot = 0, optLines = {}, quotes = [];
+			Object.keys(state).forEach(function (name) {
+				var r = state[name]; var n = units(r);
+				normal += r.normal; robot += r.robot;
+				if (!n) return;
+				Object.keys(r.opts).forEach(function (id) {
+					if (!r.opts[id] || !optById[id]) return;
+					var o = optById[id];
+					if (o.yen == null) { quotes.push(o.name + '（' + name + '）'); return; }
+					if (!optLines[id]) optLines[id] = { name: o.name, units: 0, yen: o.yen };
+					optLines[id].units += n;
+				});
+			});
+			var total = normal + robot;
+			var off = Math.max(0, total - (discFrom - 1));
+			var sum = normal * price.normal + robot * price.robot - off * disc;
+			var lines = [];
+			if (normal) lines.push(['ノーマル ×' + normal + '台', normal * price.normal]);
+			if (robot) lines.push(['お掃除機能付き ×' + robot + '台', robot * price.robot]);
+			if (off) lines.push([discFrom + '台目以降の値引き ×' + off + '台', -off * disc]);
+			Object.keys(optLines).forEach(function (id) {
+				var l = optLines[id];
+				lines.push([l.name + ' ×' + l.units + '台', l.units * l.yen]);
+				sum += l.units * l.yen;
+			});
+			calc.querySelector('.fv__calc-body').hidden = total === 0;
+			calc.querySelector('.fv__calc-hint').hidden = total > 0;
+			calc.querySelector('.js-calc-units').textContent = total;
+			calc.querySelector('.js-calc-total').textContent = yen(sum);
+			var ul = calc.querySelector('.js-calc-lines');
+			ul.textContent = '';
+			lines.forEach(function (l) {
+				var li = doc.createElement('li');
+				var a = doc.createElement('span'); a.textContent = l[0];
+				var b = doc.createElement('span'); b.textContent = yen(l[1]);
+				li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+			});
+			var q = calc.querySelector('.js-calc-quote');
+			q.hidden = !quotes.length;
+			q.textContent = quotes.length ? '別途お見積り：' + quotes.join('、') : '';
+			calc.classList.toggle('is-active', total > 0);
 		};
+
+		var renderDialog = function () {
+			var r = get(current);
+			dialog.querySelector('.js-dialog-room').textContent = current;
+			dialog.querySelectorAll('.stepper').forEach(function (st) {
+				var t = st.getAttribute('data-type');
+				st.querySelector('.js-step-val').textContent = r[t];
+				st.querySelector('[data-step="-1"]').disabled = r[t] <= 0;
+				st.querySelector('[data-step="1"]').disabled = r[t] >= MAX;
+			});
+			dialog.querySelectorAll('.room-dialog__opts input').forEach(function (cb) {
+				cb.checked = !!r.opts[cb.value];
+				cb.disabled = units(r) === 0;
+			});
+			dialog.querySelector('.room-dialog__opts').classList.toggle('is-disabled', units(r) === 0);
+			dialog.querySelector('.js-dialog-sub').textContent = units(r) + '台';
+		};
+		var update = function () { renderDialog(); renderRooms(); renderCalc(); };
+
+		var open = function (room) {
+			current = room.getAttribute('data-room');
+			var r = get(current);
+			if (units(r) === 0) r.normal = 1; // 開いたらまずノーマル1台を入れる（よくある選び方）
+			update();
+			if (typeof dialog.showModal === 'function') { dialog.showModal(); } else { dialog.setAttribute('open', ''); }
+			var first = dialog.querySelector('.stepper [data-step="1"]');
+			if (first) first.focus();
+		};
+		var close = function () {
+			if (typeof dialog.close === 'function') { dialog.close(); } else { dialog.removeAttribute('open'); }
+		};
+		dialog.addEventListener('close', function () {
+			var el = planWrap.querySelector('.plan--pc .plan-room[data-room="' + current + '"]');
+			if (window.matchMedia('(max-width: 640px)').matches) el = planWrap.querySelector('.plan--sp .plan-room[data-room="' + current + '"]');
+			if (el) el.focus({ preventScroll: true });
+		});
+		dialog.addEventListener('click', function (e) {
+			if (e.target === dialog) close(); // 背景を押したら閉じる
+			var step = e.target.closest('.js-step');
+			if (step) {
+				var t = step.closest('.stepper').getAttribute('data-type');
+				var r = get(current);
+				r[t] = Math.max(0, Math.min(MAX, r[t] + Number(step.getAttribute('data-step'))));
+				update();
+			}
+			if (e.target.closest('.js-dialog-close')) close();
+		});
+		dialog.addEventListener('change', function (e) {
+			if (e.target.matches('.room-dialog__opts input')) {
+				get(current).opts[e.target.value] = e.target.checked;
+				update();
+			}
+		});
 		rooms.forEach(function (room) {
-			room.addEventListener('click', function () { toggle(room); });
+			room.addEventListener('click', function () { open(room); });
 			room.addEventListener('keydown', function (e) {
-				if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(room); }
+				if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(room); }
 			});
 		});
 		planWrap.classList.add('is-interactive');
